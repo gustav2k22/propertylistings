@@ -6,6 +6,7 @@ import Layout from './components/Layout';
 import PropertyListings from './pages/PropertyListings';
 import PropertyDetails from './pages/PropertyDetails';
 import AddProperty from './pages/AddProperty';
+import ApiTest from './pages/ApiTest';
 import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
               <Route path="/" element={<PropertyListings />} />
               <Route path="/property/:id" element={<PropertyDetails />} />
               <Route path="/add-property" element={<AddProperty />} />
+              <Route path="/api-test" element={<ApiTest />} />
             </Routes>
           </ErrorBoundary>
         </Layout>

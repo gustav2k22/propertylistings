@@ -21,6 +21,13 @@ function Layout({ children }) {
               </Typography>
             </Button>
             <Box className="flex-grow" />
+            <Button
+              color="inherit"
+              onClick={() => navigate('/api-test')}
+              className="mr-4 text-gray-700 hover:bg-gray-100"
+            >
+              API Test
+            </Button>
             {location.pathname === '/' && (
               <Button
                 variant="contained"

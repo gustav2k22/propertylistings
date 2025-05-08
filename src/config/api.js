@@ -1,19 +1,32 @@
-// Try to get the API URL from environment variables, with fallbacks
-// The order of these URLs is important - we'll try them in order until one works
+// Get all possible API URLs from environment variables with fallbacks
 const POSSIBLE_API_URLS = [
   import.meta.env.VITE_API_URL,
+  import.meta.env.VITE_API_URL_FALLBACK_1,
+  import.meta.env.VITE_API_URL_FALLBACK_2,
+  import.meta.env.VITE_API_URL_FALLBACK_3,
+  // Your specific Railway URL
+  'https://web-production-a3241.up.railway.app',
+  'https://web-production-a3241.railway.app',
+  // Legacy URLs
+  'https://property-listings-production.up.railway.app',
   'https://property-listings-production.railway.app',
+  'https://property-listings.railway.app',
   'https://property-listings.up.railway.app',
   'http://localhost:3000'
 ];
 
-// Filter out any undefined or empty URLs
-const VALID_URLS = POSSIBLE_API_URLS.filter(url => url);
+// Filter out any undefined or empty URLs and remove duplicates
+const VALID_URLS = [...new Set(POSSIBLE_API_URLS.filter(url => url))];
 
 // Use the first valid URL, or localhost as a last resort
 const API_BASE_URL = VALID_URLS[0] || 'http://localhost:3000';
 
-console.log('Using API base URL:', API_BASE_URL);
+console.log('API configuration loaded');
+console.log('Primary API URL:', API_BASE_URL);
+console.log('Fallback URLs available:', VALID_URLS.length - 1);
+
+// Export the list of all URLs for the diagnostic tool
+export const ALL_API_URLS = VALID_URLS;
 
 export const API_CONFIG = {
   headers: {
