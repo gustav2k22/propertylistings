@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { API_ENDPOINTS } from '../config/api';
 import { 
   Container, 
   Paper, 
@@ -39,7 +40,12 @@ function PropertyDetails() {
 
   const fetchPropertyDetails = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/properties/${id}`);
+      const response = await fetch(`${API_ENDPOINTS.properties}/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       if (!response.ok) {
         throw new Error('Property not found');
       }
@@ -56,8 +62,11 @@ function PropertyDetails() {
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/properties/${id}`, {
+      const response = await fetch(`${API_ENDPOINTS.properties}/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
       
       if (!response.ok) {
