@@ -11,6 +11,7 @@
     "server": "node server/index.js",
     "setup-db": "node server/config/setup-database.js",
     "setup-railway-db": "node server/scripts/setup-railway-db.js",
+    "set-railway-password": "node server/scripts/set-railway-password.js",
     "server:dev": "nodemon server/index.js",
     "start": "node server/index.js",
     "clean": "rm -rf dist",

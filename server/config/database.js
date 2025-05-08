@@ -1,4 +1,5 @@
 import mysql from 'mysql2/promise';
+import { railwayDbConfig } from './railway-db-config.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -14,7 +15,13 @@ let connectionError = null;
 let dbConfig;
 
 try {
-  if (process.env.MYSQL_URL) {
+  // Check if we're running on Railway (environment variable specific to Railway)
+  if (process.env.RAILWAY_STATIC_URL || process.env.RAILWAY_SERVICE_NAME) {
+    console.log('Detected Railway environment, using Railway database configuration');
+    dbConfig = railwayDbConfig;
+  }
+  // If MYSQL_URL is provided, try to use it
+  else if (process.env.MYSQL_URL) {
     console.log('Using MYSQL_URL for database connection');
     // Parse the Railway URL
     try {
@@ -34,32 +41,9 @@ try {
     } catch (error) {
       console.error('Error parsing MYSQL_URL:', error.message);
       
-      // Try parsing manually if URL parsing fails
-      try {
-        const mysqlUrl = process.env.MYSQL_URL;
-        console.log('Trying manual parsing of MYSQL_URL');
-        
-        // Extract parts from the connection string
-        // Format: mysql://username:password@hostname:port/database
-        const userPassHostPortDB = mysqlUrl.replace('mysql://', '');
-        const [userPass, hostPortDB] = userPassHostPortDB.split('@');
-        const [user, password] = userPass.split(':');
-        const [hostPort, database] = hostPortDB.split('/');
-        const [host, port] = hostPort.split(':');
-        
-        dbConfig = {
-          host,
-          user,
-          password,
-          database,
-          port,
-          ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-        };
-        
-        console.log('Manual parsing successful');
-      } catch (manualError) {
-        console.error('Manual parsing failed:', manualError.message);
-      }
+      // If URL parsing fails, use the hardcoded Railway config
+      console.log('Falling back to hardcoded Railway database configuration');
+      dbConfig = railwayDbConfig;
     }
   } else {
     console.log('Using individual environment variables for database connection');
