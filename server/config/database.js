@@ -16,9 +16,22 @@ let dbConfig;
 
 try {
   // Check if we're running on Railway (environment variable specific to Railway)
-  if (process.env.RAILWAY_STATIC_URL || process.env.RAILWAY_SERVICE_NAME) {
+  if (process.env.RAILWAY_STATIC_URL || process.env.RAILWAY_SERVICE_NAME || process.env.MYSQLHOST) {
     console.log('Detected Railway environment, using Railway database configuration');
-    dbConfig = railwayDbConfig;
+    
+    // Use Railway's specific environment variables
+    // These are automatically set by Railway when you add a MySQL database
+    dbConfig = {
+      host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
+      user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
+      password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
+      database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'railway',
+      port: process.env.MYSQLPORT || process.env.DB_PORT || 3306,
+      ssl: { rejectUnauthorized: false },
+      connectTimeout: 60000, // Increase timeout for Railway connections
+    };
+    
+    console.log('Using Railway MySQL environment variables');
   }
   // If MYSQL_URL is provided, try to use it
   else if (process.env.MYSQL_URL) {
@@ -34,16 +47,24 @@ try {
         password: url.password,
         database: url.pathname.replace('/', ''),
         port: url.port,
-        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+        ssl: { rejectUnauthorized: false },
+        connectTimeout: 60000, // Increase timeout for Railway connections
       };
       
       console.log('Successfully parsed MYSQL_URL');
     } catch (error) {
       console.error('Error parsing MYSQL_URL:', error.message);
+      console.log('Falling back to environment variables');
       
-      // If URL parsing fails, use the hardcoded Railway config
-      console.log('Falling back to hardcoded Railway database configuration');
-      dbConfig = railwayDbConfig;
+      // Fall back to individual environment variables
+      dbConfig = {
+        host: process.env.DB_HOST || 'localhost',
+        user: process.env.DB_USER || 'root',
+        password: process.env.DB_PASSWORD || '',
+        database: process.env.DB_NAME || 'property_listings',
+        port: process.env.DB_PORT || 3306,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      };
     }
   } else {
     console.log('Using individual environment variables for database connection');
@@ -53,7 +74,7 @@ try {
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME || 'property_listings',
       port: process.env.DB_PORT || 3306,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
     };
   }
 
