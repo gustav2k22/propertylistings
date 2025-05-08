@@ -4,7 +4,7 @@ import PropertyCard from '../components/PropertyCard';
 import PropertyCardSkeleton from '../components/PropertyCardSkeleton';
 import PropertyFilters from '../components/PropertyFilters';
 import { setPageTitle } from '../utils/titleManager';
-import { API_ENDPOINTS } from '../config/api';
+import { API_ENDPOINTS, API_CONFIG } from '../config/api';
 
 function PropertyListings() {
   const [properties, setProperties] = useState([]);
@@ -26,9 +26,7 @@ function PropertyListings() {
     try {
       const response = await fetch(API_ENDPOINTS.properties, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        ...API_CONFIG
       });
       if (!response.ok) {
         throw new Error('Failed to fetch properties');

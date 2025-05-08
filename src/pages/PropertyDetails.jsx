@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { API_ENDPOINTS } from '../config/api';
+import { API_ENDPOINTS, API_CONFIG } from '../config/api';
 import { 
   Container, 
   Paper, 
@@ -42,9 +42,7 @@ function PropertyDetails() {
     try {
       const response = await fetch(`${API_ENDPOINTS.properties}/${id}`, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        ...API_CONFIG
       });
       if (!response.ok) {
         throw new Error('Property not found');
@@ -64,9 +62,7 @@ function PropertyDetails() {
     try {
       const response = await fetch(`${API_ENDPOINTS.properties}/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        ...API_CONFIG
       });
       
       if (!response.ok) {

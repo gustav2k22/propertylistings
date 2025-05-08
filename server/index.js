@@ -14,21 +14,21 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // CORS configuration
-const corsOptions = {
-  origin: [
-    'http://localhost:5173',
-    'https://property-listings-gustavo.vercel.app',
-    'https://property-listings-git-main-gustavo.vercel.app',
-    'https://property-listings.vercel.app'
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  optionsSuccessStatus: 200
-};
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    return res.status(200).json({});
+  }
+  next();
+});
 
 // Basic middleware
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 
 // Health check endpoint

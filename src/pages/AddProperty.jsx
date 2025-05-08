@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_ENDPOINTS } from '../config/api';
+import { API_ENDPOINTS, API_CONFIG } from '../config/api';
 import {
   Container,
   Paper,
@@ -73,9 +73,7 @@ function AddProperty() {
     try {
       const response = await fetch(API_ENDPOINTS.properties, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        ...API_CONFIG,
         body: JSON.stringify({
           ...formData,
           price: price
