@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "rm -rf dist node_modules/.cache",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "server": "node server/index.js",
     "server:dev": "nodemon server/index.js",
     "start": "node server/index.js",
+    "clean": "rm -rf dist",
     "vercel-build": "vite build"
   },
   "dependencies": {
