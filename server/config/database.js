@@ -108,19 +108,14 @@ try {
       enableKeepAlive: true,
       keepAliveInitialDelay: 10000, // 10 seconds
     });
-
+    
     // Test the connection
     console.log('Testing database connection...');
-    pool.getConnection()
-      .then(connection => {
-        console.log('Database connection successful!');
-        isConnected = true;
-        connection.release();
-      })
-      .catch(err => {
-        console.error('Database connection failed:', err);
-        connectionError = err;
-      });
+    const connection = await pool.getConnection();
+    connection.release();
+    
+    isConnected = true;
+    console.log('Database connection successful!');
   }
 } catch (error) {
   console.error('Error creating database pool:', error);

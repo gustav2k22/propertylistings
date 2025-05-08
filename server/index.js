@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import propertyRoutes from './routes/properties.js';
+
+// Import from the new Railway database configuration
+import { pool, isConnected, connectionError } from './config/railway-database.js';
 import * as fallbackController from './controllers/fallbackController.js';
 
 dotenv.config();
