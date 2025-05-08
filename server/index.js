@@ -13,25 +13,55 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware
+// Basic middleware
 app.use(cors());
 app.use(express.json());
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.status(200).send('Property Listings Server');
+});
 
 // API Routes
 app.use('/api/properties', propertyRoutes);
 
-// Serve static files from the React app in production
-if (process.env.NODE_ENV === 'production') {
-  const distPath = path.resolve(__dirname, '../dist');
-  app.use(express.static(distPath));
-  
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(distPath, 'index.html'));
-  });
-}
+// Serve static files
+const distPath = path.resolve(__dirname, '../dist');
+app.use(express.static(distPath));
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+// Catch-all route for SPA
+app.get('*', (req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
+// Start server
+const server = app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running on port ${port}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-}); 
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully');
+  server.close(() => {
+    console.log('Closed out remaining connections');
+    process.exit(0);
+  });
+});
+
+export default app; 
