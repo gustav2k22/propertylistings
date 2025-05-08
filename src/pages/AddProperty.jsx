@@ -90,9 +90,12 @@ function AddProperty() {
         image_url: ''
       });
 
-      // Redirect to the new property after 2 seconds
+      // Store the new property in localStorage for the details page
+      localStorage.setItem('newProperty', JSON.stringify(data));
+      
+      // Redirect to the home page after 2 seconds
       setTimeout(() => {
-        navigate(`/property/${data.id}`);
+        navigate('/');
       }, 2000);
 
     } catch (err) {

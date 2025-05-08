@@ -35,6 +35,27 @@ function PropertyDetails() {
   const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
+    // Check if we're coming from the add property page
+    const newPropertyData = localStorage.getItem('newProperty');
+    
+    if (newPropertyData && id) {
+      try {
+        const newProperty = JSON.parse(newPropertyData);
+        // Check if this is the property we're looking for
+        if (newProperty.id.toString() === id.toString()) {
+          setProperty(newProperty);
+          setPageTitle(newProperty.title);
+          setLoading(false);
+          // Clear the stored property after using it
+          localStorage.removeItem('newProperty');
+          return;
+        }
+      } catch (err) {
+        console.error('Error parsing stored property:', err);
+      }
+    }
+    
+    // If we don't have the property in localStorage, fetch it normally
     fetchPropertyDetails();
   }, [id]);
 

@@ -1,5 +1,6 @@
 // Mock data for properties
-export const mockProperties = [
+// Using let instead of const so we can update the array
+let mockProperties = [
   {
     id: 1,
     title: "Modern Apartment in Downtown",
@@ -55,4 +56,36 @@ export const mockProperties = [
 // Function to get a single property by ID
 export const getMockProperty = (id) => {
   return mockProperties.find(property => property.id === parseInt(id));
+};
+
+// Function to add a new property to mock data
+export const addMockProperty = (property) => {
+  // Generate a new ID that doesn't conflict with existing ones
+  const maxId = mockProperties.length > 0 
+    ? Math.max(...mockProperties.map(p => p.id))
+    : 0;
+  
+  const newProperty = {
+    ...property,
+    id: maxId + 1,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+  
+  // Add to the beginning of the array so it shows up first
+  mockProperties = [newProperty, ...mockProperties];
+  
+  return newProperty;
+};
+
+// Function to get all mock properties
+export const getAllMockProperties = () => {
+  return [...mockProperties];
+};
+
+// Function to delete a mock property
+export const deleteMockProperty = (id) => {
+  const initialLength = mockProperties.length;
+  mockProperties = mockProperties.filter(property => property.id !== parseInt(id));
+  return initialLength !== mockProperties.length;
 };

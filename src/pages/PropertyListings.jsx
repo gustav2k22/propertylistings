@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Grid, Typography, Box } from '@mui/material';
+import { Grid, Typography, Box, Button } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import PropertyCard from '../components/PropertyCard';
 import PropertyCardSkeleton from '../components/PropertyCardSkeleton';
 import PropertyFilters from '../components/PropertyFilters';
@@ -55,12 +56,25 @@ function PropertyListings() {
   return (
     <Box>
       <Box className="mb-8">
-        <Typography variant="h4" component="h1" className="mb-6 font-bold text-gray-800">
-          Find Your Dream Property
-        </Typography>
-        <Typography variant="subtitle1" color="text.secondary" className="mb-6">
-          Browse through our collection of premium properties and find your perfect home.
-        </Typography>
+        <Box className="flex justify-between items-center mb-6">
+          <div>
+            <Typography variant="h4" component="h1" className="font-bold text-gray-800">
+              Find Your Dream Property
+            </Typography>
+            <Typography variant="subtitle1" color="text.secondary" className="mt-2">
+              Browse through our collection of premium properties and find your perfect home.
+            </Typography>
+          </div>
+          <Button 
+            startIcon={<RefreshIcon />} 
+            onClick={fetchProperties} 
+            variant="outlined"
+            color="primary"
+            className="h-10"
+          >
+            Refresh
+          </Button>
+        </Box>
         <PropertyFilters onFilterChange={setFilters} />
       </Box>
 

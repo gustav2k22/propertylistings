@@ -1,5 +1,5 @@
 import { API_ENDPOINTS } from '../config/api';
-import { mockProperties, getMockProperty } from './mockData';
+import { getAllMockProperties, getMockProperty, addMockProperty, deleteMockProperty } from './mockData';
 
 // Timeout for API requests in milliseconds
 const API_TIMEOUT = 5000;
@@ -38,7 +38,7 @@ export const getProperties = async () => {
   } catch (error) {
     console.error('Error fetching properties, using mock data:', error);
     // Return mock data as fallback
-    return mockProperties;
+    return getAllMockProperties();
   }
 };
 
@@ -89,14 +89,9 @@ export const createProperty = async (propertyData) => {
     return data;
   } catch (error) {
     console.error('Error creating property:', error);
-    // For creation, we'll simulate success with a mock ID
-    console.log('Simulating successful property creation with mock data');
-    return {
-      ...propertyData,
-      id: Math.floor(Math.random() * 1000) + 10, // Random ID that won't conflict with existing mock data
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+    // Add to mock data store so it persists between page views
+    console.log('Adding property to mock data store');
+    return addMockProperty(propertyData);
   }
 };
 
@@ -117,8 +112,9 @@ export const deleteProperty = async (id) => {
     return { success: true };
   } catch (error) {
     console.error(`Error deleting property ${id}:`, error);
-    // For deletion, we'll just simulate success
-    console.log('Simulating successful property deletion');
-    return { success: true };
+    // Remove from mock data store
+    console.log('Removing property from mock data store');
+    const deleted = deleteMockProperty(id);
+    return { success: deleted };
   }
 };
