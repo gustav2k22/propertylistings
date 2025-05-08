@@ -27,6 +27,33 @@ const fetchWithTimeout = async (url, options = {}) => {
   ]);
 };
 
+// Store the working API path once found
+let workingApiPath = '/api/properties';
+
+// Function to try different API paths
+const tryApiPaths = async (baseUrl) => {
+  const paths = [
+    '/api/properties',
+    '/properties',
+    '/v1/properties'
+  ];
+  
+  for (const path of paths) {
+    try {
+      const response = await fetchWithTimeout(`${baseUrl}${path}`);
+      if (response.ok) {
+        workingApiPath = path;
+        console.log(`Found working API path: ${path}`);
+        return { success: true, data: await response.json() };
+      }
+    } catch (error) {
+      console.error(`Error trying path ${path}:`, error);
+    }
+  }
+  
+  return { success: false };
+};
+
 // Get all properties with fallback to mock data
 export const getProperties = async (forceRefresh = false) => {
   // Determine if we should try the API
@@ -38,25 +65,40 @@ export const getProperties = async (forceRefresh = false) => {
   
   if (shouldTryApi) {
     try {
-      console.log('Attempting to fetch properties from API:', API_ENDPOINTS.properties);
-      const response = await fetchWithTimeout(API_ENDPOINTS.properties);
+      // Extract the base URL
+      const baseUrl = API_BASE_URL.split('/api')[0].split('/properties')[0].split('/v1')[0];
+      console.log('Base URL for API:', baseUrl);
       
-      if (!response.ok) {
+      // First try the known working path
+      console.log(`Attempting to fetch properties using path: ${workingApiPath}`);
+      const response = await fetchWithTimeout(`${baseUrl}${workingApiPath}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Successfully fetched properties from API');
+        
+        // Update our connection status
+        usingMockData = false;
+        lastSuccessfulApiConnection = Date.now();
+        
+        return data;
+      } else {
         console.warn('API returned error status:', response.status);
-        throw new Error(`API error: ${response.status}`);
+        
+        // If the known path doesn't work, try all paths
+        console.log('Trying all possible API paths...');
+        const result = await tryApiPaths(baseUrl);
+        
+        if (result.success) {
+          // Update our connection status
+          usingMockData = false;
+          lastSuccessfulApiConnection = Date.now();
+          
+          return result.data;
+        } else {
+          throw new Error('No working API path found');
+        }
       }
-      
-      const data = await response.json();
-      console.log('Successfully fetched properties from API');
-      
-      // Update our connection status
-      usingMockData = false;
-      lastSuccessfulApiConnection = Date.now();
-      
-      // If we have new properties in mock data, we should try to sync them to the API
-      // This would be implemented in a real app, but we'll skip it for this demo
-      
-      return data;
     } catch (error) {
       console.error('Error fetching properties from API:', error);
       usingMockData = true;
@@ -75,22 +117,28 @@ export const getPropertyById = async (id, forceRefresh = false) => {
   
   if (shouldTryApi) {
     try {
-      console.log(`Attempting to fetch property ${id} from API:`, `${API_ENDPOINTS.properties}/${id}`);
-      const response = await fetchWithTimeout(`${API_ENDPOINTS.properties}/${id}`);
+      // Extract the base URL
+      const baseUrl = API_BASE_URL.split('/api')[0].split('/properties')[0].split('/v1')[0];
       
-      if (!response.ok) {
+      // Use the known working path
+      const fullUrl = `${baseUrl}${workingApiPath}/${id}`;
+      console.log(`Attempting to fetch property ${id} from API:`, fullUrl);
+      
+      const response = await fetchWithTimeout(fullUrl);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Successfully fetched property from API');
+        
+        // Update our connection status
+        usingMockData = false;
+        lastSuccessfulApiConnection = Date.now();
+        
+        return data;
+      } else {
         console.warn('API returned error status:', response.status);
         throw new Error(`API error: ${response.status}`);
       }
-      
-      const data = await response.json();
-      console.log('Successfully fetched property from API');
-      
-      // Update our connection status
-      usingMockData = false;
-      lastSuccessfulApiConnection = Date.now();
-      
-      return data;
     } catch (error) {
       console.error(`Error fetching property ${id} from API:`, error);
       usingMockData = true;

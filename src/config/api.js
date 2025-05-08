@@ -55,6 +55,27 @@ export const fetchAPI = async (endpoint, options = {}) => {
   }
 };
 
+// Define API endpoints with different possible path structures
+const API_PATH_OPTIONS = [
+  '/api/properties',  // Standard path
+  '/properties',      // Simplified path
+  '/v1/properties',   // Versioned path
+];
+
+// Function to test if an endpoint is valid
+export const testEndpoint = async (baseUrl, path) => {
+  try {
+    const response = await fetch(`${baseUrl}${path}`);
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+};
+
+// Export the endpoints
 export const API_ENDPOINTS = {
-  properties: `${API_BASE_URL}/api/properties`
+  properties: `${API_BASE_URL}/api/properties`,
+  // Alternative endpoints that might work
+  propertiesAlt1: `${API_BASE_URL}/properties`,
+  propertiesAlt2: `${API_BASE_URL}/v1/properties`
 };

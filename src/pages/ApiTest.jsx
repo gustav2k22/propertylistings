@@ -11,7 +11,7 @@ import {
   Divider,
   CircularProgress
 } from '@mui/material';
-import { API_ENDPOINTS, ALL_API_URLS } from '../config/api';
+import { API_ENDPOINTS, ALL_API_URLS, testEndpoint } from '../config/api';
 import { setPageTitle } from '../utils/titleManager';
 
 function ApiTest() {
@@ -19,6 +19,12 @@ function ApiTest() {
   const [testResults, setTestResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [customUrl, setCustomUrl] = useState('');
+  const [apiPaths, setApiPaths] = useState([
+    '/api/properties',
+    '/properties',
+    '/v1/properties'
+  ]);
+  const [selectedPath, setSelectedPath] = useState('/api/properties');
 
   useEffect(() => {
     setPageTitle('API Connection Test');
@@ -40,9 +46,13 @@ function ApiTest() {
   const testApiConnection = async () => {
     setLoading(true);
     try {
-      addResult(`Testing connection to: ${apiUrl}`);
+      // Extract the base URL from the current API URL
+      const baseUrl = apiUrl.split('/api')[0];
+      const fullUrl = `${baseUrl}${selectedPath}`;
       
-      const response = await fetch(apiUrl, {
+      addResult(`Testing connection to: ${fullUrl}`);
+      
+      const response = await fetch(fullUrl, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -61,6 +71,9 @@ function ApiTest() {
       // Display the data
       addResult(`Data preview: ${JSON.stringify(data).substring(0, 100)}...`);
       
+      // Update the API endpoint in the configuration
+      setApiUrl(fullUrl);
+      
       return true;
     } catch (error) {
       addResult(`Connection failed: ${error.message}`, false);
@@ -68,6 +81,53 @@ function ApiTest() {
     } finally {
       setLoading(false);
     }
+  };
+  
+  // Function to test all possible API paths
+  const testAllPaths = async () => {
+    setLoading(true);
+    addResult('Testing all possible API paths...');
+    
+    // Extract the base URL from the current API URL
+    const baseUrl = apiUrl.split('/api')[0].split('/properties')[0].split('/v1')[0];
+    
+    let foundWorkingPath = false;
+    
+    for (const path of apiPaths) {
+      try {
+        const fullUrl = `${baseUrl}${path}`;
+        addResult(`Testing path: ${path} (${fullUrl})`);
+        
+        const response = await fetch(fullUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          mode: 'cors'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          addResult(`Path ${path} works! Received ${Array.isArray(data) ? data.length : 1} items.`);
+          setSelectedPath(path);
+          setApiUrl(fullUrl);
+          foundWorkingPath = true;
+          break;
+        } else {
+          addResult(`Path ${path} returned status: ${response.status}`, false);
+        }
+      } catch (error) {
+        addResult(`Error testing path ${path}: ${error.message}`, false);
+      }
+    }
+    
+    if (!foundWorkingPath) {
+      addResult('Could not find a working API path. Try adding a custom path.', false);
+    }
+    
+    setLoading(false);
+    return foundWorkingPath;
   };
 
   const testHealthEndpoint = async () => {
@@ -152,23 +212,66 @@ function ApiTest() {
           </Paper>
         </Box>
         
-        <Box className="flex gap-4 mb-6">
-          <Button 
-            variant="contained" 
-            color="primary" 
-            onClick={testApiConnection}
-            disabled={loading}
-          >
-            {loading ? <CircularProgress size={24} color="inherit" /> : 'Test API Connection'}
-          </Button>
+        <Box className="mb-6">
+          <Typography variant="subtitle1" className="mb-2 font-semibold">
+            API Path:
+          </Typography>
+          <Box className="flex flex-wrap gap-2 mb-4">
+            {apiPaths.map((path) => (
+              <Button 
+                key={path}
+                variant={selectedPath === path ? "contained" : "outlined"}
+                size="small"
+                onClick={() => setSelectedPath(path)}
+                className={selectedPath === path ? "bg-blue-600" : ""}
+              >
+                {path}
+              </Button>
+            ))}
+            <Button 
+              variant="outlined" 
+              size="small"
+              onClick={() => {
+                const newPath = prompt('Enter a custom API path (e.g., /api/v2/properties):');
+                if (newPath && !apiPaths.includes(newPath)) {
+                  setApiPaths([...apiPaths, newPath]);
+                  setSelectedPath(newPath);
+                }
+              }}
+            >
+              + Add Path
+            </Button>
+          </Box>
           
-          <Button 
-            variant="outlined" 
-            onClick={testHealthEndpoint}
-            disabled={loading}
-          >
-            Test Health Endpoint
-          </Button>
+          <Box className="flex flex-wrap gap-4 mb-6">
+            <Button 
+              variant="contained" 
+              color="primary" 
+              onClick={testApiConnection}
+              disabled={loading}
+              className="min-w-[180px]"
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : 'Test Selected Path'}
+            </Button>
+            
+            <Button 
+              variant="contained"
+              color="secondary"
+              onClick={testAllPaths}
+              disabled={loading}
+              className="min-w-[180px]"
+            >
+              Test All Paths
+            </Button>
+            
+            <Button 
+              variant="outlined" 
+              onClick={testHealthEndpoint}
+              disabled={loading}
+            >
+              Test Health Endpoint
+            </Button>
+          </Box>
         </Box>
         
         <Box className="mb-6">
