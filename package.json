@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "server": "node server/index.js",
+    "setup-db": "node server/config/setup-database.js",
     "server:dev": "nodemon server/index.js",
     "start": "node server/index.js",
     "clean": "rm -rf dist",

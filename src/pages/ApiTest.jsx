@@ -162,6 +162,41 @@ function ApiTest() {
       setLoading(false);
     }
   };
+  
+  const testDatabaseConnection = async () => {
+    setLoading(true);
+    try {
+      const baseUrl = apiUrl.split('/api')[0];
+      const dbStatusUrl = `${baseUrl}/db-status`;
+      
+      addResult(`Testing database connection: ${dbStatusUrl}`);
+      
+      const response = await fetch(dbStatusUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        mode: 'cors'
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        addResult(`Database connection successful! Response: ${JSON.stringify(data)}`);
+        return true;
+      } else {
+        addResult(`Database connection failed: ${data.error}`, false);
+        addResult(`Database config: ${JSON.stringify(data.config)}`, false);
+        return false;
+      }
+    } catch (error) {
+      addResult(`Database check failed: ${error.message}`, false);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const useCustomUrl = () => {
     if (customUrl.trim()) {
@@ -270,6 +305,15 @@ function ApiTest() {
               disabled={loading}
             >
               Test Health Endpoint
+            </Button>
+            
+            <Button 
+              variant="outlined" 
+              color="warning"
+              onClick={testDatabaseConnection}
+              disabled={loading}
+            >
+              Test Database Connection
             </Button>
           </Box>
         </Box>

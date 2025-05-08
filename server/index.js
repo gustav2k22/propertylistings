@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import propertyRoutes from './routes/properties.js';
+import * as fallbackController from './controllers/fallbackController.js';
 
 dotenv.config();
 
@@ -40,6 +41,52 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Database diagnostic endpoint
+app.get('/db-status', async (req, res) => {
+  try {
+    // Import the database pool
+    const { pool } = await import('./config/database.js');
+    
+    // Try to connect to the database
+    const connection = await pool.getConnection();
+    
+    // Get database info
+    const [rows] = await connection.query('SELECT VERSION() as version');
+    
+    // Release the connection
+    connection.release();
+    
+    // Return success
+    res.status(200).json({
+      status: 'connected',
+      timestamp: new Date().toISOString(),
+      database: {
+        version: rows[0].version,
+        config: {
+          host: process.env.MYSQL_URL ? 'From MYSQL_URL' : process.env.DB_HOST || 'localhost',
+          database: process.env.MYSQL_URL ? 'From MYSQL_URL' : process.env.DB_NAME || 'property_listings',
+          user: 'HIDDEN',
+          ssl: process.env.NODE_ENV === 'production' ? 'Enabled' : 'Disabled'
+        }
+      }
+    });
+  } catch (error) {
+    // Return error
+    res.status(500).json({
+      status: 'error',
+      timestamp: new Date().toISOString(),
+      error: error.message,
+      stack: process.env.NODE_ENV === 'production' ? null : error.stack,
+      config: {
+        mysqlUrl: process.env.MYSQL_URL ? 'Set' : 'Not set',
+        dbHost: process.env.DB_HOST || 'Not set',
+        dbName: process.env.DB_NAME || 'Not set',
+        nodeEnv: process.env.NODE_ENV || 'Not set'
+      }
+    });
+  }
+});
+
 // Root endpoint
 app.get('/', (req, res) => {
   res.status(200).send('Property Listings Server');
@@ -47,6 +94,17 @@ app.get('/', (req, res) => {
 
 // API Routes
 app.use('/api/properties', propertyRoutes);
+
+// Fallback API Routes (for when the database is unavailable)
+const fallbackRouter = express.Router();
+fallbackRouter.get('/', fallbackController.getAllProperties);
+fallbackRouter.get('/:id', fallbackController.getPropertyById);
+fallbackRouter.post('/', fallbackController.createProperty);
+fallbackRouter.delete('/:id', fallbackController.deleteProperty);
+
+// Mount the fallback API routes
+app.use('/properties', fallbackRouter);
+app.use('/v1/properties', fallbackRouter);
 
 // Serve static files
 const distPath = path.resolve(__dirname, '../dist');

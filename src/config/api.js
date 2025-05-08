@@ -74,8 +74,7 @@ export const testEndpoint = async (baseUrl, path) => {
 
 // Export the endpoints
 export const API_ENDPOINTS = {
-  properties: `${API_BASE_URL}/api/properties`,
-  // Alternative endpoints that might work
-  propertiesAlt1: `${API_BASE_URL}/properties`,
-  propertiesAlt2: `${API_BASE_URL}/v1/properties`
+  properties: `${API_BASE_URL}/properties`, // Use the fallback endpoint by default
+  propertiesApi: `${API_BASE_URL}/api/properties`,
+  propertiesV1: `${API_BASE_URL}/v1/properties`
 };
