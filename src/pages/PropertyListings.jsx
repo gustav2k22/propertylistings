@@ -4,7 +4,7 @@ import PropertyCard from '../components/PropertyCard';
 import PropertyCardSkeleton from '../components/PropertyCardSkeleton';
 import PropertyFilters from '../components/PropertyFilters';
 import { setPageTitle } from '../utils/titleManager';
-import { API_ENDPOINTS, API_CONFIG } from '../config/api';
+import { API_ENDPOINTS, fetchAPI } from '../config/api';
 
 function PropertyListings() {
   const [properties, setProperties] = useState([]);
@@ -20,20 +20,34 @@ function PropertyListings() {
   useEffect(() => {
     setPageTitle('Home');
     fetchProperties();
+
+    // Check API connectivity
+    const checkApiConnectivity = async () => {
+      try {
+        const response = await fetch(`${API_ENDPOINTS.properties}?limit=1`, {
+          method: 'HEAD',
+          cache: 'no-store'
+        });
+        if (!response.ok) {
+          console.warn('API connectivity check failed:', response.status);
+        } else {
+          console.log('API connectivity check passed');
+        }
+      } catch (err) {
+        console.error('API connectivity check error:', err);
+        setError('Unable to connect to the API. Please check your network connection.');
+      }
+    };
+    
+    checkApiConnectivity();
   }, []);
 
   const fetchProperties = async () => {
     try {
-      const response = await fetch(API_ENDPOINTS.properties, {
-        method: 'GET',
-        ...API_CONFIG
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch properties');
-      }
-      const data = await response.json();
+      const data = await fetchAPI(API_ENDPOINTS.properties);
       setProperties(data);
     } catch (err) {
+      console.error('Error fetching properties:', err);
       setError(err.message);
     } finally {
       setLoading(false);

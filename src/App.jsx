@@ -6,6 +6,7 @@ import Layout from './components/Layout';
 import PropertyListings from './pages/PropertyListings';
 import PropertyDetails from './pages/PropertyDetails';
 import AddProperty from './pages/AddProperty';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   return (
@@ -13,11 +14,13 @@ function App() {
       <CssBaseline />
       <Router>
         <Layout>
-          <Routes>
-            <Route path="/" element={<PropertyListings />} />
-            <Route path="/property/:id" element={<PropertyDetails />} />
-            <Route path="/add-property" element={<AddProperty />} />
-          </Routes>
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/" element={<PropertyListings />} />
+              <Route path="/property/:id" element={<PropertyDetails />} />
+              <Route path="/add-property" element={<AddProperty />} />
+            </Routes>
+          </ErrorBoundary>
         </Layout>
       </Router>
     </ThemeProvider>

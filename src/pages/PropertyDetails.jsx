@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { API_ENDPOINTS, API_CONFIG } from '../config/api';
+import { API_ENDPOINTS, fetchAPI } from '../config/api';
 import { 
   Container, 
   Paper, 
@@ -40,17 +40,11 @@ function PropertyDetails() {
 
   const fetchPropertyDetails = async () => {
     try {
-      const response = await fetch(`${API_ENDPOINTS.properties}/${id}`, {
-        method: 'GET',
-        ...API_CONFIG
-      });
-      if (!response.ok) {
-        throw new Error('Property not found');
-      }
-      const data = await response.json();
+      const data = await fetchAPI(`${API_ENDPOINTS.properties}/${id}`);
       setProperty(data);
       setPageTitle(data.title);
     } catch (err) {
+      console.error('Error fetching property details:', err);
       setError(err.message);
       setPageTitle('Property Not Found');
     } finally {
@@ -60,15 +54,10 @@ function PropertyDetails() {
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`${API_ENDPOINTS.properties}/${id}`, {
-        method: 'DELETE',
-        ...API_CONFIG
+      await fetchAPI(`${API_ENDPOINTS.properties}/${id}`, {
+        method: 'DELETE'
       });
       
-      if (!response.ok) {
-        throw new Error('Failed to delete property');
-      }
-
       setToast({
         open: true,
         message: 'Property deleted successfully',
@@ -79,6 +68,7 @@ function PropertyDetails() {
         navigate('/');
       }, 2000);
     } catch (err) {
+      console.error('Error deleting property:', err);
       setToast({
         open: true,
         message: err.message,

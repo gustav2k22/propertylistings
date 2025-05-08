@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_ENDPOINTS, API_CONFIG } from '../config/api';
+import { API_ENDPOINTS, fetchAPI } from '../config/api';
 import {
   Container,
   Paper,
@@ -71,20 +71,13 @@ function AddProperty() {
     }
 
     try {
-      const response = await fetch(API_ENDPOINTS.properties, {
+      const data = await fetchAPI(API_ENDPOINTS.properties, {
         method: 'POST',
-        ...API_CONFIG,
         body: JSON.stringify({
           ...formData,
           price: price
-        }),
+        })
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to create property');
-      }
-
-      const data = await response.json();
       setToast({
         open: true,
         message: 'Property created successfully!',
