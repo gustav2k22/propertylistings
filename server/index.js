@@ -15,10 +15,10 @@ import * as fallbackController from './controllers/fallbackController.js';
 
 // Import database configuration directly
 // We'll use the fallback controller when the database connection fails
-import { pool, isConnected, connectionError } from './config/database.js';
+import { pool, isConnected, connectionError, useMockData } from './config/database.js';
 
-// Force mock data mode in Railway environment
-if (isRailway) {
+// Force mock data mode in Railway environment if database connection fails
+if (isRailway && !isConnected) {
   console.log('Running on Railway, using mock data mode');
   process.env.USE_MOCK_DATA = 'true';
 }
@@ -58,15 +58,25 @@ app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    databaseConnected: isConnected,
+    useMockData: useMockData || process.env.USE_MOCK_DATA === 'true'
   });
 });
 
 // Database diagnostic endpoint
 app.get('/db-status', async (req, res) => {
   try {
-    // Import the database pool
-    const { pool } = await import('./config/database.js');
+    if (!isConnected || useMockData) {
+      return res.status(200).json({
+        status: 'mock',
+        timestamp: new Date().toISOString(),
+        message: 'Using mock data mode - database connection not available',
+        error: connectionError ? connectionError.message : 'No connection established',
+        environment: process.env.NODE_ENV || 'development',
+        railwayDetected: isRailway
+      });
+    }
     
     // Try to connect to the database
     const connection = await pool.getConnection();
@@ -100,6 +110,7 @@ app.get('/db-status', async (req, res) => {
       stack: process.env.NODE_ENV === 'production' ? null : error.stack,
       config: {
         mysqlUrl: process.env.MYSQL_URL ? 'Set' : 'Not set',
+        mysqlHost: process.env.MYSQLHOST ? 'Set' : 'Not set',
         dbHost: process.env.DB_HOST || 'Not set',
         dbName: process.env.DB_NAME || 'Not set',
         nodeEnv: process.env.NODE_ENV || 'Not set'
@@ -146,6 +157,7 @@ app.use((err, req, res, next) => {
 const server = app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Database Connected: ${isConnected ? 'Yes' : 'No (using mock data)'}`);
 });
 
 // Graceful shutdown
