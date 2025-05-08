@@ -15,8 +15,14 @@ const POSSIBLE_API_URLS = [
   'http://localhost:3000'
 ];
 
+// Clean up URLs to ensure they don't have trailing slashes
+const cleanUrls = POSSIBLE_API_URLS.map(url => {
+  if (!url) return '';
+  return url.endsWith('/') ? url.slice(0, -1) : url;
+});
+
 // Filter out any undefined or empty URLs and remove duplicates
-const VALID_URLS = [...new Set(POSSIBLE_API_URLS.filter(url => url))];
+const VALID_URLS = [...new Set(cleanUrls.filter(url => url))];
 
 // Use the first valid URL, or localhost as a last resort
 const API_BASE_URL = VALID_URLS[0] || 'http://localhost:3000';
@@ -76,5 +82,7 @@ export const testEndpoint = async (baseUrl, path) => {
 export const API_ENDPOINTS = {
   properties: `${API_BASE_URL}/properties`, // Use the fallback endpoint by default
   propertiesApi: `${API_BASE_URL}/api/properties`,
-  propertiesV1: `${API_BASE_URL}/v1/properties`
+  propertiesV1: `${API_BASE_URL}/v1/properties`,
+  health: `${API_BASE_URL}/health`,
+  dbStatus: `${API_BASE_URL}/db-status`
 };

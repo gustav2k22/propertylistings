@@ -46,8 +46,8 @@ function ApiTest() {
   const testApiConnection = async () => {
     setLoading(true);
     try {
-      // Extract the base URL from the current API URL
-      const baseUrl = apiUrl.split('/api')[0];
+      // Extract the base URL without any paths
+      const baseUrl = apiUrl.split('/api')[0].split('/properties')[0].split('/v1')[0];
       const fullUrl = `${baseUrl}${selectedPath}`;
       
       addResult(`Testing connection to: ${fullUrl}`);
@@ -133,8 +133,7 @@ function ApiTest() {
   const testHealthEndpoint = async () => {
     setLoading(true);
     try {
-      const baseUrl = apiUrl.split('/api')[0];
-      const healthUrl = `${baseUrl}/health`;
+      const healthUrl = API_ENDPOINTS.health;
       
       addResult(`Testing health endpoint: ${healthUrl}`);
       
@@ -166,8 +165,7 @@ function ApiTest() {
   const testDatabaseConnection = async () => {
     setLoading(true);
     try {
-      const baseUrl = apiUrl.split('/api')[0];
-      const dbStatusUrl = `${baseUrl}/db-status`;
+      const dbStatusUrl = API_ENDPOINTS.dbStatus;
       
       addResult(`Testing database connection: ${dbStatusUrl}`);
       

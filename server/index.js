@@ -30,7 +30,11 @@ app.use((req, res, next) => {
 
 // Basic middleware
 app.use(cors());
-app.use(express.json());
+
+// Increase JSON payload size limit
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+// Express JSON middleware with increased size limit is already configured above
 
 // Health check endpoint
 app.get('/health', (req, res) => {

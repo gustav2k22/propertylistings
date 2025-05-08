@@ -17,15 +17,50 @@ try {
   if (process.env.MYSQL_URL) {
     console.log('Using MYSQL_URL for database connection');
     // Parse the Railway URL
-    const url = new URL(process.env.MYSQL_URL);
-    dbConfig = {
-      host: url.hostname,
-      user: url.username,
-      password: url.password,
-      database: url.pathname.replace('/', ''),
-      port: url.port,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-    };
+    try {
+      const url = new URL(process.env.MYSQL_URL);
+      
+      // Railway MySQL URLs are in the format: mysql://username:password@hostname:port/database
+      dbConfig = {
+        host: url.hostname,
+        user: url.username,
+        password: url.password,
+        database: url.pathname.replace('/', ''),
+        port: url.port,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      };
+      
+      console.log('Successfully parsed MYSQL_URL');
+    } catch (error) {
+      console.error('Error parsing MYSQL_URL:', error.message);
+      
+      // Try parsing manually if URL parsing fails
+      try {
+        const mysqlUrl = process.env.MYSQL_URL;
+        console.log('Trying manual parsing of MYSQL_URL');
+        
+        // Extract parts from the connection string
+        // Format: mysql://username:password@hostname:port/database
+        const userPassHostPortDB = mysqlUrl.replace('mysql://', '');
+        const [userPass, hostPortDB] = userPassHostPortDB.split('@');
+        const [user, password] = userPass.split(':');
+        const [hostPort, database] = hostPortDB.split('/');
+        const [host, port] = hostPort.split(':');
+        
+        dbConfig = {
+          host,
+          user,
+          password,
+          database,
+          port,
+          ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+        };
+        
+        console.log('Manual parsing successful');
+      } catch (manualError) {
+        console.error('Manual parsing failed:', manualError.message);
+      }
+    }
   } else {
     console.log('Using individual environment variables for database connection');
     dbConfig = {
