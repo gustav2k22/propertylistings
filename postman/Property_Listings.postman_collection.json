@@ -1,0 +1,71 @@
+{
+  "info": {
+    "_postman_id": "your-collection-id",
+    "name": "Property Listings API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Properties",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:3000/api/properties",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "properties"]
+        }
+      }
+    },
+    {
+      "name": "Get Property by ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:3000/api/properties/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "properties", "1"]
+        }
+      }
+    },
+    {
+      "name": "Create Property",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/properties",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "properties"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"title\": \"Modern Apartment in East Legon\",\n    \"description\": \"Beautiful 3-bedroom apartment with modern amenities\",\n    \"price\": 450000,\n    \"location\": \"East Legon, Accra\",\n    \"image_url\": \"https://example.com/image.jpg\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Delete Property",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:3000/api/properties/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["api", "properties", "1"]
+        }
+      }
+    }
+  ]
+} 
