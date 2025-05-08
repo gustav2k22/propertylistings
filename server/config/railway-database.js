@@ -24,13 +24,35 @@ if (useMockData) {
   
   try {
     // Configure database connection
+    const mysqlHost = process.env.MYSQLHOST || 
+      process.env.RAILWAY_TCP_PROXY_DOMAIN || 
+      process.env.DB_HOST || 
+      'localhost';
+    
+    const mysqlPort = process.env.MYSQLPORT || 
+      process.env.RAILWAY_TCP_PROXY_PORT || 
+      process.env.DB_PORT || 
+      '3306';
+    
+    const mysqlUser = process.env.MYSQLUSER || 
+      process.env.DB_USER || 
+      'root';
+    
+    const mysqlPassword = process.env.MYSQLPASSWORD || 
+      process.env.DB_PASSWORD || 
+      process.env.RAILWAY_DB_PASSWORD || 
+      'property123';
+    
+    const mysqlDatabase = process.env.MYSQLDATABASE || 
+      process.env.DB_NAME || 
+      'railway';
+    
     const dbConfig = {
-      // Priority: Railway MySQL vars > Custom env vars > Defaults
-      host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
-      user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
-      password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
-      database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'railway',
-      port: parseInt(process.env.MYSQLPORT || process.env.DB_PORT || '3306', 10),
+      host: mysqlHost,
+      user: mysqlUser,
+      password: mysqlPassword,
+      database: mysqlDatabase,
+      port: parseInt(mysqlPort, 10),
       ssl: { rejectUnauthorized: false },
       connectTimeout: 60000, // 60 seconds
       waitForConnections: true,
