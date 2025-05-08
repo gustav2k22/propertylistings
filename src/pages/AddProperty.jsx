@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { API_ENDPOINTS, fetchAPI } from '../config/api';
+import { createProperty } from '../services/propertyService';
 import {
   Container,
   Paper,
@@ -71,12 +71,9 @@ function AddProperty() {
     }
 
     try {
-      const data = await fetchAPI(API_ENDPOINTS.properties, {
-        method: 'POST',
-        body: JSON.stringify({
-          ...formData,
-          price: price
-        })
+      const data = await createProperty({
+        ...formData,
+        price: price
       });
       setToast({
         open: true,

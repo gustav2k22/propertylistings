@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { API_ENDPOINTS, fetchAPI } from '../config/api';
+import { getPropertyById, deleteProperty } from '../services/propertyService';
 import { 
   Container, 
   Paper, 
@@ -40,7 +40,7 @@ function PropertyDetails() {
 
   const fetchPropertyDetails = async () => {
     try {
-      const data = await fetchAPI(`${API_ENDPOINTS.properties}/${id}`);
+      const data = await getPropertyById(id);
       setProperty(data);
       setPageTitle(data.title);
     } catch (err) {
@@ -54,9 +54,7 @@ function PropertyDetails() {
 
   const handleDelete = async () => {
     try {
-      await fetchAPI(`${API_ENDPOINTS.properties}/${id}`, {
-        method: 'DELETE'
-      });
+      await deleteProperty(id);
       
       setToast({
         open: true,
