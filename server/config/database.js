@@ -60,9 +60,11 @@ try {
   // Log configuration (without sensitive data)
   console.log('Database configuration:', {
     host: dbConfig.host,
+    user: dbConfig.user,
     database: dbConfig.database,
     port: dbConfig.port,
     ssl: dbConfig.ssl ? 'Enabled' : 'Disabled',
+    passwordProvided: dbConfig.password ? 'Yes' : 'No'
   });
 } catch (error) {
   console.error('Error parsing database configuration:', error);
