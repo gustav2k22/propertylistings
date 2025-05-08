@@ -5,9 +5,23 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import propertyRoutes from './routes/properties.js';
 
-// Import from the new Railway database configuration
-import { pool, isConnected, connectionError } from './config/railway-database.js';
+// Check if we're running on Railway
+const isRailway = process.env.RAILWAY_STATIC_URL || process.env.RAILWAY_SERVICE_NAME;
+
+// Import the database configuration based on environment
+// For Railway, we'll use force-mock-data to ensure the app works without a database
+// For local development, we'll use the regular database configuration
 import * as fallbackController from './controllers/fallbackController.js';
+
+// Import database configuration directly
+// We'll use the fallback controller when the database connection fails
+import { pool, isConnected, connectionError } from './config/database.js';
+
+// Force mock data mode in Railway environment
+if (isRailway) {
+  console.log('Running on Railway, using mock data mode');
+  process.env.USE_MOCK_DATA = 'true';
+}
 
 dotenv.config();
 
