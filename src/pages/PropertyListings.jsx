@@ -23,10 +23,11 @@ function PropertyListings() {
     fetchProperties();
   }, []);
 
-  const fetchProperties = async () => {
+  const fetchProperties = async (forceRefresh = false) => {
     try {
       setLoading(true);
-      const data = await getProperties();
+      // Pass the forceRefresh flag to the service
+      const data = await getProperties(forceRefresh);
       setProperties(data);
       setError(null);
     } catch (err) {
@@ -35,6 +36,12 @@ function PropertyListings() {
     } finally {
       setLoading(false);
     }
+  };
+  
+  // Function to force refresh from the backend
+  const handleRefresh = () => {
+    // Pass true to force a refresh from the backend
+    fetchProperties(true);
   };
 
   const filteredProperties = useMemo(() => {
@@ -67,12 +74,12 @@ function PropertyListings() {
           </div>
           <Button 
             startIcon={<RefreshIcon />} 
-            onClick={fetchProperties} 
+            onClick={handleRefresh} 
             variant="outlined"
             color="primary"
             className="h-10"
           >
-            Refresh
+            Refresh from Server
           </Button>
         </Box>
         <PropertyFilters onFilterChange={setFilters} />
